@@ -1,9 +1,17 @@
 import classNames from "classnames";
+import { useEffect } from "react";
 import { useState } from "react";
 import { Card, CardBody, Collapse } from "reactstrap";
 
-export default function CardBasic({title, children}){
-    const [accordionSearch, setAccordionSearch] = useState(true);
+export default function CardBasic({title, children, openAccordion=false, setOpenAccordion}){
+    const [accordionSearch, setAccordionSearch] = useState(openAccordion);
+
+    useEffect(() => {
+        if(openAccordion){
+            setAccordionSearch(openAccordion)
+            setOpenAccordion(false)
+        }        
+    },[openAccordion])
 
     return (
         <Card>

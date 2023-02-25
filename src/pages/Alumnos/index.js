@@ -1,38 +1,118 @@
+import { useEffect } from "react";
 import { useMemo, useState } from "react";
 import { withRouter } from "react-router-dom";
+import { toast } from "react-toastify";
 import { Col, Container, Row } from "reactstrap";
 import BuscarAlumnos from "../../components/Alumnos/BuscarAlumnos";
 import FormAlumnos from "../../components/Alumnos/FormAlumnos";
 import Breadcrumbs from "../../components/Common/Breadcrumbs";
 import CardBasic from "../../components/Common/CardBasic";
 import SimpleLoad from "../../components/Loader/SimpleLoad";
+import CellActions from "../../components/Tables/CellActions";
+import Paginate from "../../components/Tables/Paginate";
 import SimpleTable from "../../components/Tables/SimpleTable";
+import { ERROR_SERVER } from "../../constants/messages";
+import { getAlumnosList } from "../../helpers/alumnos";
 
 function Alumnos(){  
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
     const [items, setItems] = useState([]);
+    const [item, setItem] = useState(null)
+    const [totalPaginas, setTotalPaginas] = useState(0)
+    const [totalRegistros, setTotalRegistros]   =useState(10)
+    const [openAccordion, setOpenAccordion] = useState(false)
+    const [reload, setReload] = useState(true);
+    const [query, setQuery] = useState({
+      PageNumber: 0,
+      PageSize: totalRegistros
+  })
 
-    const columns = useMemo(
-        () => [
-          {
-            Header: 'RFC',
-            accessor: 'rfc', // accessor is the "key" in the data
-          },
-          {
-            Header: 'Nombre',
-            accessor: 'nombre',
-          },
-          {
-            Header: 'Razón social',
-            accessor: 'razonSocial',
-          },
-          {
-            Header: 'Correo electrónico',
-            accessor: 'correo',
-          },
-        ],
-        []
-    );
+  const fetchBoadTypeListPaginadoApi = async () => {
+    setLoading(true)
+    let q = Object.keys(query).map(key=>`${key}=${query[key]}`).join("&")
+    try {
+        const response = await getAlumnosList(`?${q}`);
+        console.log(response)
+        setItems(response.data)
+        setTotalPaginas(response.totalPages)
+        setTotalRegistros(response.totalRecords)
+        setLoading(false)
+    } catch (error) {
+        toast.error(ERROR_SERVER)
+        setItems([])
+        setTotalPaginas(0)
+        setTotalRegistros(10)
+        setLoading(false)
+    } 
+  }
+
+  useEffect(() => {
+    fetchBoadTypeListPaginadoApi()
+}, [query])
+useEffect(() => {
+  if(reload){
+    fetchBoadTypeListPaginadoApi()
+    setReload(false)
+  }
+}, [reload])
+
+  const editAction = (row) => {
+    setItem(row.original)
+    setOpenAccordion(true)
+    window.scrollTo({top: 0, left: 0, behavior: 'smooth'})
+  }
+
+  const columns = useMemo(
+      () => [
+        {
+          Header: 'CURP',
+          accessor: 'curp', // accessor is the "key" in the data
+        },
+        {
+          Header: 'Nombre',
+          accessor: 'nombre',
+        },
+        {
+          Header: 'Razón social',
+          accessor: 'razonSocialId',
+        },
+        {
+          Header: 'Correo electrónico',
+          accessor: 'email',
+        },
+        {
+          id: 'acciones',
+          Header: "Acciones",
+          Cell: ({row}) => (
+              <>
+                  <CellActions
+                      edit={{"allow": true, action: editAction}} 
+                      row={row}
+                  />
+              </>
+          ), 
+          style: {
+              width: '10%'
+          }         
+        }
+      ],
+      []
+  );
+
+  const handlePageClick = page => {
+    setQuery(prev=>({
+        ...prev,
+        PageNumber: page
+    }))
+  }
+
+  const handleChangeLimit = limit => {
+      setQuery(prev=>({
+          ...prev,
+          PageNumber: 0,
+          PageSize: limit
+      }))
+  }
   
     const cardChildren = (
         <>
@@ -43,7 +123,11 @@ function Alumnos(){
             </Row>
             <Row>
                 <Col>
-                    <FormAlumnos />
+                    <FormAlumnos 
+                      item={item}
+                      setItem={setItem}
+                      setReloadList={setReload}
+                    />
                 </Col>
             </Row>
         </>
@@ -62,7 +146,18 @@ function Alumnos(){
                     columns={columns}
                     data={items} 
                 />
-            </Col>            
+            </Col> 
+            {
+              items.length > 0 &&
+              <Paginate
+                  page={query.PageNumber}
+                  totalPaginas={totalPaginas}
+                  totalRegistros={totalRegistros}
+                  handlePageClick={handlePageClick}
+                  limit={query.PageSize}
+                  handleChangeLimit={handleChangeLimit}
+              />
+          }           
         </Row>
     )
     
@@ -81,6 +176,8 @@ function Alumnos(){
                     <CardBasic 
                         title="Alumnos"
                         children={cardChildren}
+                        openAccordion={openAccordion}
+                        setOpenAccordion={setOpenAccordion}
                     />                    
                 </Col>
               </Row>

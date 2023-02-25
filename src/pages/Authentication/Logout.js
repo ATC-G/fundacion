@@ -2,7 +2,7 @@ import { useHistory, withRouter } from "react-router-dom"
 
 function Logout() {
     const history = useHistory();
-    localStorage.removeItem("contrep_auth");
+    localStorage.removeItem("fundacionauth");
     history.push("/login");
     return <></>
 }

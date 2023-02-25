@@ -16,8 +16,8 @@ function Login(){
         enableReinitialize: true,
     
         initialValues: {
-          username: "admin@admin.com" || '',
-          password: '123456',
+          username: "santiago.figueroa94@gmail.com" || '',
+          password: 'P4ssw0rd12145',
         },
         validationSchema: Yup.object({
           username: Yup.string().required("Username required"),
@@ -25,18 +25,17 @@ function Login(){
         }),
         onSubmit: async (values) => {
           try{
-            //const response = await postJwtLogin(values)
-            if(1===1){ //response.success
-              //localStorage.setItem("contrep_auth", JSON.stringify(response));
-              localStorage.setItem("contrep_auth", JSON.stringify({"success":true,"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxLCJuYW1lIjoiQWRtaW4iLCJhY3RpdmUiOnRydWUsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwicGFzc3dvcmQiOiJVMkZzZEdWa1gxK203NHVqWUt4Tm5VenlHWnQrQmhEL0ZnbENxVDVJUUVzPSIsInVzZXJuYW1lIjoiYWRtaW4iLCJkZWxldGUiOmZhbHNlLCJjcmVhdGVkQXQiOiIyMDIyLTEyLTAxVDAwOjM4OjM2LjAwMFoiLCJ1cGRhdGVkQXQiOiIyMDIyLTEyLTAxVDAwOjM4OjM2LjAwMFoiLCJyb2xlX2lkIjoxLCJSb2xlIjp7ImlkIjoxLCJuYW1lIjoiQURNSU5JU1RSQURPUiIsImRlbGV0ZSI6ZmFsc2UsImNyZWF0ZWRBdCI6IjIwMjItMTItMDFUMDA6Mzg6MTIuMDAwWiIsInVwZGF0ZWRBdCI6IjIwMjItMTItMDFUMDA6Mzg6MTIuMDAwWiJ9fSwiaWF0IjoxNjczOTg0MjYzLCJleHAiOjE2NzM5OTUwNjN9.650ylVFXwsMPVpcNbx6AcTMZ2kFGYG_SYlVAs0xmTTE"}));
-              window.location.href="/alumnos"
-              //history.push("/dashboard");
+            const response = await postJwtLogin(values)
+            console.log(response)
+            if(response){
+              localStorage.setItem("fundacionauth", JSON.stringify({"token":response}));
+              window.location.href="/alumnos";
             }            
           }catch(error){
             console.log('error')
             console.log(error)
             if(error.response){
-              checkError(error.response.data)
+              checkError(error.response)
             }
           }
         }
@@ -95,7 +94,7 @@ function Login(){
                         }}
                       >         
 
-                        {error && <Alert color="danger">{error.msg}</Alert>}
+                        {error && <Alert color="danger">{error}</Alert>}
                         {errors.length > 0 && 
                         <Alert color="danger">
                           {
@@ -143,12 +142,20 @@ function Login(){
                         </div>
   
                         <div className="mt-3 d-grid">
-                          <button
-                            className="btn btn-primary btn-block"
-                            type="submit"
-                          >
-                            Ingresar
-                          </button>
+                          {
+                            validation.isSubmitting ?
+                            <span
+                              className="btn btn-primary btn-block disabled"
+                            >
+                              <i className="bx bx-loader bx-spin font-size-16 align-middle me-2"></i>
+                            </span> : 
+                            <button
+                              className="btn btn-primary btn-block"
+                              type="submit"
+                            >
+                              Ingresar
+                            </button>
+                          }                          
                         </div>
                       </Form>
                     </div>
