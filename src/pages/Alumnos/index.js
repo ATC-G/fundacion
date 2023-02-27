@@ -13,6 +13,7 @@ import Paginate from "../../components/Tables/Paginate";
 import SimpleTable from "../../components/Tables/SimpleTable";
 import { ERROR_SERVER } from "../../constants/messages";
 import { getAlumnosList } from "../../helpers/alumnos";
+import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 
 function Alumnos(){  
     const [loading, setLoading] = useState(true)
@@ -32,13 +33,14 @@ function Alumnos(){
     let q = Object.keys(query).map(key=>`${key}=${query[key]}`).join("&")
     try {
         const response = await getAlumnosList(`?${q}`);
-        console.log(response)
         setItems(response.data)
         setTotalPaginas(response.totalPages)
         setTotalRegistros(response.totalRecords)
         setLoading(false)
     } catch (error) {
-        toast.error(ERROR_SERVER)
+        let message  = ERROR_SERVER;
+        message = extractMeaningfulMessage(error, message)
+        toast.error(message);
         setItems([])
         setTotalPaginas(0)
         setTotalRegistros(10)

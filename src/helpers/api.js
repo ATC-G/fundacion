@@ -19,7 +19,7 @@ axiosApi.interceptors.response.use(
     error => {
         console.log(error)
         if(error.response === undefined){
-            alert("Seems there are some issue with his internet, check your conextion please")
+            return Promise.reject(error);
         }else if(error.response.status===403){
             window.localStorage.removeItem('fundacionauth');
             window.location.reload();

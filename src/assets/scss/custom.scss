@@ -201,6 +201,14 @@
   right: 0;
   background-color: rgba(255, 255, 255, 0.9);
 }
+.overlay-login{
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.9);
+  height: 100%;
+  width: 100%;
+  opacity: 0.3;
+  z-index: 0;
+}
 .overlay-content {
   position: relative;
   top: 25%; /* 25% from the top */
@@ -210,4 +218,10 @@
 }
 .zIndex-1{
   z-index: 1;
+}
+.input-group-loader{
+  background-color: transparent;
+  border-left: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }

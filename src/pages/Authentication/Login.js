@@ -16,17 +16,16 @@ function Login(){
         enableReinitialize: true,
     
         initialValues: {
-          username: "santiago.figueroa94@gmail.com" || '',
+          userName: "santiago.figueroa94@gmail.com" || '',
           password: 'P4ssw0rd12145',
         },
         validationSchema: Yup.object({
-          username: Yup.string().required("Username required"),
+          userName: Yup.string().required("Username required"),
           password: Yup.string().required("Password required"),
         }),
         onSubmit: async (values) => {
           try{
             const response = await postJwtLogin(values)
-            console.log(response)
             if(response){
               localStorage.setItem("fundacionauth", JSON.stringify({"token":response}));
               window.location.href="/alumnos";
@@ -64,7 +63,7 @@ function Login(){
                             <h6 className="text-white d-none d-md-block">Sistema de control y administracion de colegiaturas</h6>
                           </div>
                         </div>
-                        <div className="overlay"></div>
+                        <div className="overlay-login"></div>
                         <img src={profile} alt="" className="img-fluid" />
                       </Col>
                     </Row>                    
@@ -107,19 +106,19 @@ function Login(){
                         <div className="mb-3">
                           <Label className="form-label">Correo electrónico</Label>
                           <Input
-                            name="username"
+                            name="userName"
                             className="form-control"
                             placeholder="Enter email"
                             type="text"
                             onChange={validation.handleChange}
                             onBlur={validation.handleBlur}
-                            value={validation.values.username || ""}
+                            value={validation.values.userName || ""}
                             invalid={
-                              validation.touched.username && validation.errors.username ? true : false
+                              validation.touched.userName && validation.errors.userName ? true : false
                             }
                           />
-                          {validation.touched.username && validation.errors.username ? (
-                            <FormFeedback type="invalid">{validation.errors.username}</FormFeedback>
+                          {validation.errors.userName ? (
+                            <FormFeedback type="invalid">{validation.errors.userName}</FormFeedback>
                           ) : null}
                         </div>
 
@@ -136,7 +135,7 @@ function Login(){
                               validation.touched.password && validation.errors.password ? true : false
                             }
                           />
-                          {validation.touched.password && validation.errors.password ? (
+                          {validation.errors.password ? (
                             <FormFeedback type="invalid">{validation.errors.password}</FormFeedback>
                           ) : null}
                         </div>
