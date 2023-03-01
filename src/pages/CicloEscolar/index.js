@@ -1,16 +1,16 @@
 import { useState, useMemo } from "react";
 import { withRouter } from "react-router-dom";
 import { Col, Container, Row } from "reactstrap";
-import BuscarCicloEscolar from "../../components/CicloEscolar/BuscarCicloEscolar";
+import FormCicloEscolar from "../../components/CicloEscolar/FormCicloEscolar";
 import Breadcrumbs from "../../components/Common/Breadcrumbs";
 import CardBasic from "../../components/Common/CardBasic";
 import SimpleLoad from "../../components/Loader/SimpleLoad";
 import SimpleTable from "../../components/Tables/SimpleTable";
-import { testItemsCicloEscolar } from "../../data/testData";
 
 function CicloEscolar(){  
     const [loading, setLoading] = useState(false)
-    const [items, setItems] = useState(testItemsCicloEscolar);
+    const [items, setItems] = useState([]);
+    const [openAccordion, setOpenAccordion] = useState(false)
 
     const columns = useMemo(
         () => [
@@ -51,12 +51,7 @@ function CicloEscolar(){
         <>
             <Row>
                 <Col xs="12" md="12">
-                    <BuscarCicloEscolar />
-                </Col>
-            </Row>
-            <Row className="my-5">
-                <Col>
-                    {cardHandleList}
+                    <FormCicloEscolar />
                 </Col>
             </Row>
         </>
@@ -77,11 +72,19 @@ function CicloEscolar(){
               <Row>
                 <Col xs="12" lg="12">
                     <CardBasic 
-                        title={null}
+                        title="Ciclo Escolar"
                         children={cardChildren}
+                        openAccordion={openAccordion}
+                        setOpenAccordion={setOpenAccordion}
                     />                    
                 </Col>
-              </Row>              
+              </Row>
+
+              <Row className="pb-5">
+                  <Col lg="12">
+                    {cardHandleList}                      
+                  </Col>
+              </Row>        
             </Container>
           </div>
         </>

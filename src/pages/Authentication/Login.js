@@ -7,11 +7,13 @@ import profile from "../../assets/images/profile-img2.png"
 import logo from "../../assets/images/logo-sm.png";
 import logoPrincipal from "../../assets/images/uilogo.png";
 import { postJwtLogin } from "../../helpers/auth";
-import useHandleErrors from "../../hooks/useHandleErrors";
+import { ERROR_SERVER } from "../../constants/messages";
+import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
+import { useState } from "react";
 
 
 function Login(){
-    const [error, errors, checkError] = useHandleErrors()
+    const [error, setError] = useState('')
     const validation = useFormik({
         enableReinitialize: true,
     
@@ -31,11 +33,9 @@ function Login(){
               window.location.href="/alumnos";
             }            
           }catch(error){
-            console.log('error')
-            console.log(error)
-            if(error.response){
-              checkError(error.response)
-            }
+            let message  = ERROR_SERVER;
+            message = extractMeaningfulMessage(error, message)
+            setError(message)
           }
         }
       });
@@ -93,15 +93,7 @@ function Login(){
                         }}
                       >         
 
-                        {error && <Alert color="danger">{error}</Alert>}
-                        {errors.length > 0 && 
-                        <Alert color="danger">
-                          {
-                            errors.map((item, index)=>(
-                              <div key={index}>{item.param} - {item.msg}</div>
-                            ))
-                          }
-                        </Alert> }              
+                        {error && <Alert color="danger">{error}</Alert>}             
   
                         <div className="mb-3">
                           <Label className="form-label">Correo electrónico</Label>

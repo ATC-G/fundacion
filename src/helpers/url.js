@@ -1,5 +1,5 @@
 //AUTH
-export const POST_LOGIN = "/Token"
+export const POST_LOGIN = "/token"
 export const GET_USER_LOGUED = "/auth/loguedUser";
 
 //ALUMNOS
@@ -8,6 +8,7 @@ export const ALUMNOS_SAVE = "/command/alumnos"
 
 //Razon Social
 export const RAZON_SOCIAL_QUERY = '/query/razonessociales/searchby'
+export const RAZON_SOCIAL_PERSIST = '/command/razonessociales'
 
 
 

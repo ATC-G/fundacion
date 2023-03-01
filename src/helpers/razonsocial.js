@@ -3,11 +3,11 @@ import * as url from "./url";
 
 //get user logued
 const getRazonSocialQuery = query => get(`${url.RAZON_SOCIAL_QUERY}${query}`)
-const saveAlumnos = (data) => post(url.ALUMNOS_SAVE, data)
-const updateAlumnos = (data) => put(url.ALUMNOS_SAVE, data)
+const saveRazonSocial = (data) => post(url.RAZON_SOCIAL_PERSIST, data)
+const updateRazonSocial = (id, data) => put(`${url.RAZON_SOCIAL_PERSIST}/${id}`, data)
 
 export {
     getRazonSocialQuery,
-    saveAlumnos,
-    updateAlumnos
+    saveRazonSocial,
+    updateRazonSocial
 }

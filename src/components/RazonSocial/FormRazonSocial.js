@@ -4,12 +4,12 @@ import { toast } from "react-toastify";
 import { Button, Col, Form, Input, Label, Row } from "reactstrap";
 import * as Yup from "yup";
 import { ERROR_SERVER, FIELD_REQUIRED, SAVE_SUCCESS, UPDATE_SUCCESS } from "../../constants/messages";
+import { saveRazonSocial, updateRazonSocial } from "../../helpers/razonsocial";
 import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 import SubmitingForm from "../Loader/SubmitingForm";
 
-export default function FormRazonSocial({item, setItem, setReloadList}){
+export default function FormRazonSocial({item, setItem, setReloadList,handleAfterSubmit=null}){
     const [isSubmit, setIsSubmit] = useState(false)
-    
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -19,7 +19,7 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
             rfc: item?.rfc ?? '',
             regimen: item?.regimen ?? '',
             codigoPostal: item?.codigoPostal ?? '',
-            tipo: item?.tipo ?? '',
+            tipo: item?.tipo ?? 'Fisica',
         },
         validationSchema: Yup.object({
             nombre: Yup.string().required(FIELD_REQUIRED),   
@@ -35,11 +35,17 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
             if(values.id){
                 //update
                 try {
-                    let response = 0//request await updateAlumnos(values)
+                    let response = await updateRazonSocial(values.id, values)
                     if(response){
-                        toast.success(UPDATE_SUCCESS);
-                        setReloadList(true)
-                        resetForm();
+                        if(handleAfterSubmit){
+                            handleAfterSubmit(response)
+                        }else{
+                            toast.success(UPDATE_SUCCESS);
+                            setReloadList(true)                            
+                        }
+                        setItem(null)
+                        formik.resetForm();
+                        
                     }else{
                         toast.error(ERROR_SERVER);
                     }
@@ -53,16 +59,22 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
             }else{
                 //save
                 try{
-                    let response = 0//request await saveAlumnos(values)
+                    let response = await saveRazonSocial(values)
                     if(response){
-                        toast.success(SAVE_SUCCESS);
-                        setReloadList(true)
-                        resetForm();
+                        if(handleAfterSubmit){
+                            handleAfterSubmit(response)
+                        }else{
+                            toast.success(SAVE_SUCCESS);
+                            setReloadList(true)                            
+                        }
+                        //setItem(null)
+                        //formik.resetForm();                     
                     }else{
                         toast.error(ERROR_SERVER);
                     }
                     setIsSubmit(false)
                 }catch(error){
+                    console.log('entro aqui-2')
                     let message  = ERROR_SERVER;
                     message = extractMeaningfulMessage(error, message)
                     toast.error(message); 
@@ -71,11 +83,6 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
             }
         }
     })
-
-    const resetForm = () => {
-        setItem(null)
-        formik.resetForm();
-    }
     
     return(
         <Form
@@ -106,15 +113,15 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
                 <Col xs="12" md="4">
                     <Label htmlFor="cardCode" className="mb-0">Código Tarjeta</Label>
                     <Input
-                        id="tipo"
-                        name="tipo"
-                        className={`form-control ${formik.errors.tipo ? 'is-invalid' : ''}`}
+                        id="cardCode"
+                        name="cardCode"
+                        className={`form-control ${formik.errors.cardCode ? 'is-invalid' : ''}`}
                         onChange={formik.handleChange}
-                        value={formik.values.tipo}  
+                        value={formik.values.cardCode}  
                     />
                     {
-                        formik.errors.tipo &&
-                        <div className="invalid-tooltip">{formik.errors.tipo}</div>
+                        formik.errors.cardCode &&
+                        <div className="invalid-tooltip">{formik.errors.cardCode}</div>
                     }
                 </Col>
                 <Col xs="12" md="4">
@@ -191,7 +198,7 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
                     className="text-danger"
                     onClick={() => {
                         setItem(null)
-                        resetForm()
+                        formik.resetForm()
                     }}
                 >
                     Cancelar                    

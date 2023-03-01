@@ -30,7 +30,7 @@ export default function FormAlumnos({item, setItem, setReloadList}){
             mensualidad: item?.mensualidad ?? '',
             beca: item?.beca ?? '',
             matricula: item?.matricula ?? '',
-            razonSocialId: item?.razonSocialId ?? '',  
+            razonesSociales: item?.razonesSociales ?? [],  
         },
         validationSchema: Yup.object({
             nombre: Yup.string().required(FIELD_REQUIRED),   
@@ -43,7 +43,7 @@ export default function FormAlumnos({item, setItem, setReloadList}){
             mensualidad: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED).min(1, CAMPO_MAYOR_CERO),
             beca: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED).min(1, CAMPO_MAYOR_CERO).max(100, CAMPO_MENOR_CIEN),
             matricula: Yup.string().required(FIELD_REQUIRED),
-            razonSocialId: Yup.string().required(FIELD_REQUIRED),          
+            razonesSociales: Yup.array().of(Yup.string()).min(1, FIELD_REQUIRED)
         }),
         onSubmit: async (values) => {
             setIsSubmit(true)
@@ -87,6 +87,8 @@ export default function FormAlumnos({item, setItem, setReloadList}){
             }
         }
     })
+    console.log(formik.errors)
+    console.log(formik)
 
     const resetForm = () => {
         setItem(null)
@@ -103,6 +105,7 @@ export default function FormAlumnos({item, setItem, setReloadList}){
             let query = `?parameter=${inputValue}&PageNumber=1&PageSize=10`
             const response = await getRazonSocialQuery(query)
             console.log(response)
+            return response.map(item=>({label: item.nombre, value: item.id}))
         } catch (error) {
             let message  = ERROR_SERVER;
             message = extractMeaningfulMessage(error, message)
@@ -110,6 +113,14 @@ export default function FormAlumnos({item, setItem, setReloadList}){
         }        
     };
     const onCloseClick = () => {
+        setOpenDialogRazon(false)
+    }
+    const handleAfterSubmit = (result) => {
+        setRazonSocial({
+            value: result.id,
+            label: result.nombre
+        })
+        formik.setFieldValue('razonesSociales',  [result.id])        
         setOpenDialogRazon(false)
     }
     
@@ -138,12 +149,21 @@ export default function FormAlumnos({item, setItem, setReloadList}){
                                     loadOptions={fetchRazonOptions} 
                                     value={razonSocial}
                                     onChange={handleChange}
+                                    isClearable
                                 />
                             </div>
                             <div>
-                                <Button type="button" color="light" onClick={() => setOpenDialogRazon(true)}><i className="fas fa-plus text-primary" /></Button>
+                                <Button type="button" color="light" 
+                                    onClick={!razonSocial ? () => setOpenDialogRazon(true) : ()=>{}}
+                                    disabled={!razonSocial ? false : true}
+                                ><i className="fas fa-plus text-primary" />
+                                </Button>
                             </div>                        
-                        </div>                    
+                        </div> 
+                        {
+                            formik.errors.razonesSociales &&
+                            <div className="invalid-tooltip d-block">{formik.errors.razonesSociales}</div>
+                        }                   
                     </Col>
                 </Row>
                 
@@ -326,7 +346,9 @@ export default function FormAlumnos({item, setItem, setReloadList}){
             >            
                 <ModalHeader toggle={onCloseClick} />
                 <ModalBody className="py-3 px-5">
-                    <FormRazonSocial />                
+                    <FormRazonSocial 
+                        handleAfterSubmit={handleAfterSubmit}
+                    />                
                 </ModalBody>
             </Modal>
 
