@@ -10,7 +10,7 @@ import SimpleTable from "../../components/Tables/SimpleTable";
 function CicloEscolar(){  
     const [loading, setLoading] = useState(false)
     const [items, setItems] = useState([]);
-    const [openAccordion, setOpenAccordion] = useState(false)
+    const [openAccordion, setOpenAccordion] = useState(true)
 
     const columns = useMemo(
         () => [
@@ -72,19 +72,13 @@ function CicloEscolar(){
               <Row>
                 <Col xs="12" lg="12">
                     <CardBasic 
-                        title="Ciclo Escolar"
+                        title={null}
                         children={cardChildren}
                         openAccordion={openAccordion}
                         setOpenAccordion={setOpenAccordion}
                     />                    
                 </Col>
-              </Row>
-
-              <Row className="pb-5">
-                  <Col lg="12">
-                    {cardHandleList}                      
-                  </Col>
-              </Row>        
+              </Row>     
             </Container>
           </div>
         </>

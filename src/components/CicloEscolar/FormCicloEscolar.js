@@ -1,10 +1,10 @@
 import { Field, FieldArray, FormikProvider, useFormik } from "formik";
 import { useState } from "react"
-import { Button, Col, Form, Input, Label, Row } from "reactstrap";
+import { Button, Col, Form, Label, Row } from "reactstrap";
 import * as Yup from "yup";
 import SimpleDate from "../DatePicker/SimpleDate";
 import AsyncSelect from 'react-select/async';
-import { FIELD_REQUIRED } from "../../constants/messages";
+import { CAMPO_MAYOR_CERO, CAMPO_MENOR_CIEN, FIELD_NUMERIC, FIELD_REQUIRED } from "../../constants/messages";
 
 export default function FormCicloEscolar(){
     const [fecha, setFecha] = useState()
@@ -27,7 +27,7 @@ export default function FormCicloEscolar(){
             fechaPagos: Yup.array().of(
                 Yup.object().shape({
                     fechaLimite: Yup.string().required(FIELD_REQUIRED),
-                    interes: Yup.string().required(FIELD_REQUIRED),
+                    interes: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED).min(1, CAMPO_MAYOR_CERO).max(100, CAMPO_MENOR_CIEN),
                 })
             ),  
         }),
@@ -59,7 +59,7 @@ export default function FormCicloEscolar(){
     const handleChange = value => {
         setColegio(value);
     }
-
+    
     return(
         <Form
             className="needs-validation"
@@ -82,7 +82,11 @@ export default function FormCicloEscolar(){
                         value={colegio}
                         onChange={handleChange}
                         isClearable
-                    />                   
+                    />             
+                    {
+                        formik.errors.colegioId &&
+                        <div className="invalid-tooltip d-block">{formik.errors.colegioId}</div>
+                    }     
                 </Col>
                 <Col xs="12" md="4">
                     <Label className="mb-0">Fecha inicio a Fecha fin</Label>
@@ -94,6 +98,10 @@ export default function FormCicloEscolar(){
                         }}
                         placeholder="dd-MM-YYYY a dd-MM-YYYY"
                     />
+                    {
+                        (formik.errors.fechaInicio || formik.errors.fechaFin) &&
+                        <div className="invalid-tooltip d-block">{FIELD_REQUIRED}</div>
+                    } 
                 </Col>                                     
             </Row>
             <Row>
@@ -109,11 +117,21 @@ export default function FormCicloEscolar(){
                                         <div key={index} className="mb-2">
                                             <Row>
                                                 <Col xs="12" md="3">
-                                                    {index === 0 && <Label className="mb-0">Fecha Límite:</Label>}
-                                                    <Field
-                                                        className={`form-control ${formik.errors?.fechaPagos?.length > 0 && formik.errors.fechaPagos[index]?.informacionPersonal?.nombre ? 'is-invalid' : ''}`}
-                                                        name={`fechaPagos.${index}.fechaLimite`} 
+                                                    {index === 0 && <Label className="mb-0">Fecha límite de pago:</Label>}
+                                                    <SimpleDate 
+                                                        date={formik.values.fechaPagos[index].fechaLimite}
+                                                        setDate={value=>{ 
+                                                          if(value.length > 0){
+                                                            formik.setFieldValue(`fechaPagos.${index}.fechaLimite`, value[0])
+                                                          }else{
+                                                            formik.setFieldValue(`fechaPagos.${index}.fechaLimite`, '')
+                                                          }                                                          
+                                                        }}
                                                     />
+                                                    {
+                                                        formik.errors?.fechaPagos?.length > 0 && formik.errors.fechaPagos[index]?.fechaLimite &&
+                                                        <div className="invalid-tooltip d-block">{formik.errors.fechaPagos[index]?.fechaLimite}</div>
+                                                    } 
                                                 </Col>
                                                 <Col xs="12" md="3">
                                                     {index === 0 && <Label className="mb-0">Interés:</Label>}
@@ -121,6 +139,10 @@ export default function FormCicloEscolar(){
                                                         className={`form-control`}
                                                         name={`fechaPagos.${index}.interes`} 
                                                     />
+                                                    {
+                                                        formik.errors?.fechaPagos?.length > 0 && formik.errors.fechaPagos[index]?.interes &&
+                                                        <div className="invalid-tooltip d-block">{formik.errors.fechaPagos[index]?.interes}</div>
+                                                    } 
                                                 </Col>  
                                                 {index > 0 && 
                                                 <Col xs="12" md="1" className="d-flex align-items-center">

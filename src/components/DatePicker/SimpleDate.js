@@ -5,8 +5,6 @@ import Flatpickr from "react-flatpickr";
 import { InputGroup } from "reactstrap";
 
 function SimpleDate({date, setDate, element, options, placeholder}){
-
-
     return (
         <InputGroup>
             <Flatpickr
