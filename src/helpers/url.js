@@ -10,6 +10,14 @@ export const ALUMNOS_SAVE = "/command/alumnos"
 export const RAZON_SOCIAL_QUERY = '/query/razonessociales/searchby'
 export const RAZON_SOCIAL_PERSIST = '/command/razonessociales'
 
+//Colegios
+export const COLEGIOS_QUERY = "/query/colegios"
+export const COLEGIOS_PERSIST = "/command/colegios"
+
+//Ciclos
+export const CICLOS_BY_COLEGIOS = "/query/ciclos/getbycolegio"
+export const CICLOS_PERSIST = "/command/ciclos"
+
 
 
 

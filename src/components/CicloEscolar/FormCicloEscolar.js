@@ -1,14 +1,32 @@
 import { Field, FieldArray, FormikProvider, useFormik } from "formik";
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button, Col, Form, Label, Row } from "reactstrap";
 import * as Yup from "yup";
 import SimpleDate from "../DatePicker/SimpleDate";
-import AsyncSelect from 'react-select/async';
-import { CAMPO_MAYOR_CERO, CAMPO_MENOR_CIEN, FIELD_NUMERIC, FIELD_REQUIRED } from "../../constants/messages";
+import Select from 'react-select';
+import { CAMPO_MAYOR_CERO, CAMPO_MENOR_CIEN, FIELD_NUMERIC, FIELD_REQUIRED, SELECT_OPTION } from "../../constants/messages";
+import { getColegiosList } from "../../helpers/colegios";
+import SubmitingForm from "../Loader/SubmitingForm";
+import { getCiclosByColegio } from "../../helpers/ciclos";
 
 export default function FormCicloEscolar(){
     const [fecha, setFecha] = useState()
     const [colegio, setColegio] = useState(null)
+    const [colegiosOpt, setColegiosOpt] = useState([])
+    const [showLoad, setShowLoad] = useState(false)
+
+    const fetchColegios = async () => {
+        try {
+            const response = await getColegiosList();
+            setColegiosOpt(response.map(r=>({value: r.id, label: r.nombre})))
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    useEffect(() => {
+        fetchColegios();
+    }, [])
 
     const formik = useFormik({
         initialValues: {
@@ -53,11 +71,31 @@ export default function FormCicloEscolar(){
             // }
         }
     })
-    const fetchColegiosOptions = async (inputValue) => {  
-        if (!inputValue?.length || inputValue.length < 3) return [];       
-    };
+    
+    const fetchCiclosByColegio = async (value) => {
+        console.log(value)
+        setShowLoad(true)
+        try {
+            const q = `${value.value}?PageNumber=1&PageSize=100`
+            const response = await getCiclosByColegio(q)
+            console.log(response)
+            if(response.data.length > 0){
+
+            }
+            setShowLoad(false)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     const handleChange = value => {
         setColegio(value);
+        if(value){
+            formik.setFieldValue('colegioId', value.value)
+            fetchCiclosByColegio(value);
+        }else{
+            formik.setFieldValue('colegioId', '')
+        }        
     }
     
     return(
@@ -70,15 +108,14 @@ export default function FormCicloEscolar(){
                 return false;
             }}
         >
+            {showLoad && <SubmitingForm />}
             <Row>
                 <Col xs="12" md="4">
                     <Label htmlFor="razonSocialId" className="mb-0">Colegio</Label>
-                    <AsyncSelect 
+                    <Select 
                         classNamePrefix="select2-selection"
-                        placeholder="Buscar"
-                        cacheOptions 
-                        defaultOptions 
-                        loadOptions={fetchColegiosOptions} 
+                        placeholder={SELECT_OPTION}
+                        options={colegiosOpt} 
                         value={colegio}
                         onChange={handleChange}
                         isClearable

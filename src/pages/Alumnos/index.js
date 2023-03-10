@@ -50,13 +50,13 @@ function Alumnos(){
 
   useEffect(() => {
     fetchBoadTypeListPaginadoApi()
-}, [query])
-useEffect(() => {
-  if(reload){
-    fetchBoadTypeListPaginadoApi()
-    setReload(false)
-  }
-}, [reload])
+  }, [query])
+  useEffect(() => {
+    if(reload){
+      fetchBoadTypeListPaginadoApi()
+      setReload(false)
+    }
+  }, [reload])
 
   const editAction = (row) => {
     setItem(row.original)

@@ -140,6 +140,12 @@ function Sidebar(){
                             <span>Conceptos</span>
                         </Link> 
                       </li>
+                      <li> 
+                        <Link to="/colegios" className="">
+                            <i className="bx bxs-school"></i>
+                            <span>Colegios</span>
+                        </Link> 
+                      </li>
                       {/* <li>
                         <Link to="/configuracion" className="">
                             <i className="bx bx-cog"></i>
