@@ -1,20 +1,24 @@
 import { useFormik } from "formik";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { Button, Col, Form, Input, Label, Modal, ModalBody, ModalHeader, Row } from "reactstrap";
 import * as Yup from "yup";
-import { CAMPO_MAYOR_CERO, CAMPO_MENOR_CIEN, ERROR_SERVER, FIELD_EMAIL, FIELD_NUMERIC, FIELD_REQUIRED, SAVE_SUCCESS, UPDATE_SUCCESS } from "../../constants/messages";
+import { CAMPO_MAYOR_CERO, CAMPO_MENOR_CIEN, ERROR_SERVER, FIELD_EMAIL, FIELD_NUMERIC, FIELD_REQUIRED, SAVE_SUCCESS, SELECT_OPTION, UPDATE_SUCCESS } from "../../constants/messages";
 import { saveAlumnos, updateAlumnos } from "../../helpers/alumnos";
 import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 import SubmitingForm from "../Loader/SubmitingForm";
 import AsyncSelect from 'react-select/async';
 import { getRazonSocialQuery } from "../../helpers/razonsocial";
 import FormRazonSocial from "../RazonSocial/FormRazonSocial";
+import { getColegiosList } from "../../helpers/colegios";
+import Select from "react-select";
 
 export default function FormAlumnos({item, setItem, setReloadList}){
     const [isSubmit, setIsSubmit] = useState(false)
     const [razonSocial, setRazonSocial] = useState(null)
     const [openDialogRazon, setOpenDialogRazon] = useState(false)
+    const [colegiosOpt, setColegiosOpt] = useState([])
+    const [colegio, setColegio] = useState(null)    
     
     const formik = useFormik({
         enableReinitialize: true,
@@ -87,8 +91,6 @@ export default function FormAlumnos({item, setItem, setReloadList}){
             }
         }
     })
-    console.log(formik.errors)
-    console.log(formik)
 
     const resetForm = () => {
         setItem(null)
@@ -123,6 +125,19 @@ export default function FormAlumnos({item, setItem, setReloadList}){
         formik.setFieldValue('razonesSociales',  [result.id])        
         setOpenDialogRazon(false)
     }
+
+    const fetchColegios = async () => {
+        try {
+            const response = await getColegiosList();
+            setColegiosOpt(response.map(r=>({value: r.id, label: r.nombre})))
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    useEffect(() => {
+        fetchColegios();
+    }, [])
     
     return(
         <>
@@ -226,17 +241,25 @@ export default function FormAlumnos({item, setItem, setReloadList}){
                     </Col>
                     <Col xs="12" md="2">
                         <Label htmlFor="colegio" className="mb-0">Colegio</Label>
-                        <Input
-                            id="colegio"
-                            name="colegio"
-                            className={`form-control ${formik.errors.colegio ? 'is-invalid' : ''}`}
-                            onChange={formik.handleChange}
-                            value={formik.values.colegio}  
-                        />
+                        <Select 
+                            classNamePrefix="select2-selection"
+                            placeholder={SELECT_OPTION}
+                            options={colegiosOpt} 
+                            value={colegio}
+                            onChange={(value) => {
+                                setColegio(value)
+                                if(value){
+                                    formik.setFieldValue('colegio', value.value)
+                                }else{
+                                    formik.setFieldValue('colegio', '')
+                                }
+                            }}
+                            isClearable
+                        />             
                         {
                             formik.errors.colegio &&
-                            <div className="invalid-tooltip">{formik.errors.colegio}</div>
-                        }
+                            <div className="invalid-tooltip d-block">{formik.errors.colegio}</div>
+                        }     
                     </Col>
                     <Col xs="12" md="2">
                         <Label htmlFor="grado" className="mb-0">Grado</Label>

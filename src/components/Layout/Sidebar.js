@@ -111,35 +111,35 @@ function Sidebar(){
                           <li>
                             <Link to="/alumnos">Listado</Link>
                           </li>
-                          <li>
+                          {/* <li>
                             <Link to="/alumnos/carga-masiva">Carga masiva</Link>
-                          </li>
+                          </li> */}
                         </ul>
                       </li>
-                      <li>
+                      {/* <li>
                         <Link to="/documento" className="">
                             <i className="dripicons-align-justify"></i>
                             <span>Documentos</span>
                         </Link>              
-                      </li>
-                      <li>
+                      </li> */}
+                      {/* <li>
                         <Link to="/cobranza" className="">
                             <i className="bx bxs-filter-alt"></i>
                             <span>Cobranza</span>
                         </Link>              
-                      </li>
+                      </li> */}
                       <li>
                         <Link to="/cicloescolar" className="">
                             <i className="bx bx-calendar"></i>
                             <span>Ciclo escolar</span>
                         </Link> 
                       </li>
-                      <li> 
+                      {/* <li> 
                         <Link to="/concepto" className="">
                             <i className="bx bx-list-ul"></i>
                             <span>Conceptos</span>
                         </Link> 
-                      </li>
+                      </li> */}
                       <li> 
                         <Link to="/colegios" className="">
                             <i className="bx bxs-school"></i>

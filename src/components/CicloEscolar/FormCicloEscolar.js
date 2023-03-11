@@ -4,16 +4,29 @@ import { Button, Col, Form, Label, Row } from "reactstrap";
 import * as Yup from "yup";
 import SimpleDate from "../DatePicker/SimpleDate";
 import Select from 'react-select';
-import { CAMPO_MAYOR_CERO, CAMPO_MENOR_CIEN, FIELD_NUMERIC, FIELD_REQUIRED, SELECT_OPTION } from "../../constants/messages";
+import { CAMPO_MAYOR_CERO, CAMPO_MENOR_CIEN, ERROR_SERVER, FIELD_NUMERIC, FIELD_REQUIRED, SAVE_SUCCESS, SELECT_OPTION, UPDATE_SUCCESS } from "../../constants/messages";
 import { getColegiosList } from "../../helpers/colegios";
 import SubmitingForm from "../Loader/SubmitingForm";
-import { getCiclosByColegio } from "../../helpers/ciclos";
+import { getCiclosByColegio, saveCiclos, updateCiclos } from "../../helpers/ciclos";
+import moment from "moment/moment";
+import { toast } from "react-toastify";
+import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 
 export default function FormCicloEscolar(){
     const [fecha, setFecha] = useState()
     const [colegio, setColegio] = useState(null)
     const [colegiosOpt, setColegiosOpt] = useState([])
     const [showLoad, setShowLoad] = useState(false)
+    const [item, setItem] = useState({
+        id: '',
+        colegioId: '',
+        fechaInicio:'',
+        fechaFin: '',
+        fechaPagos:[{
+            fechaLimite: '',
+            interes: ''
+        }],
+    })
 
     const fetchColegios = async () => {
         try {
@@ -29,15 +42,8 @@ export default function FormCicloEscolar(){
     }, [])
 
     const formik = useFormik({
-        initialValues: {
-            colegioId: '',
-            fechaInicio:'',
-            fechaFin: '',
-            fechaPagos:[{
-                fechaLimite: '',
-                interes: ''
-            }],
-        },
+        enableReinitialize: true,
+        initialValues: item,
         validationSchema: Yup.object({
             colegioId: Yup.string().required(FIELD_REQUIRED),
             fechaInicio: Yup.string().required(FIELD_REQUIRED),
@@ -49,26 +55,51 @@ export default function FormCicloEscolar(){
                 })
             ),  
         }),
-        onSubmit: (values) => {
+        onSubmit: async (values) => {
             //validaciones antes de enviarlo
-            console.log(values)
-           
-            //service here
-            // try {
-            //     async function savePartnerApi() {
-            //         let response = await savePartner(values)
-            //         if(response.state){
-            //             toast.success("Actualizado correctamente");
-            //             setReloadPartner(true)
-            //             setShowForm(false)
-            //         }else{
-            //             toast.error(ERROR_SERVER);
-            //         }
-            //     }
-            //     savePartnerApi()
-            // }catch(error) {
-            //     toast.error(ERROR_SERVER); 
-            // }
+            setShowLoad(true)
+           const d = {
+                ...values,
+                fechaInicio: moment(values.fechaInicio).format("YYYY-MM-DD"),
+                fechaFin: moment(values.fechaFin).format("YYYY-MM-DD"),
+                fechaPagos: values.fechaPagos.map((fp) => ({interes: fp.interes, fechaLimite: moment(fp.fechaLimite).format('YYYY-MM-DD')}))
+           }
+           console.log(d)
+           if(values.id){
+            //update
+                try {
+                    let response = await updateCiclos(d, values.id)
+                    console.log(response)
+                    if(response){
+                        toast.success(UPDATE_SUCCESS);                        
+                    }else{
+                        toast.error(ERROR_SERVER);
+                    }
+                    setShowLoad(false)
+                } catch (error) {
+                    let message  = ERROR_SERVER;
+                    message = extractMeaningfulMessage(error, message)
+                    toast.error(message);
+                    setShowLoad(false) 
+                }
+            }else{
+                //save
+                try{
+                    let response = await saveCiclos(values)
+                    if(response){
+                        toast.success(SAVE_SUCCESS);
+                        formik.setFieldValue('id', response.id)
+                    }else{
+                        toast.error(ERROR_SERVER);
+                    }
+                    setShowLoad(false)
+                }catch(error){
+                    let message  = ERROR_SERVER;
+                    message = extractMeaningfulMessage(error, message)
+                    toast.error(message);
+                    setShowLoad(false)
+                }
+            }
         }
     })
     
@@ -80,7 +111,27 @@ export default function FormCicloEscolar(){
             const response = await getCiclosByColegio(q)
             console.log(response)
             if(response.data.length > 0){
-
+                const result = response.data[0]
+                setItem({
+                    id: result.id,
+                    colegioId: result.colegioId,
+                    fechaInicio:moment(result.fechaInicio, 'YYYY-MM-DD').toDate(),
+                    fechaFin: moment(result.fechaFin, 'YYYY-MM-DD').toDate(),
+                    fechaPagos:result.fechaPagos.map((fp) => ({interes: fp.interes, fechaLimite: moment(fp.fechaLimite, 'YYYY-MM-DD').toDate()})),
+                })
+                setFecha([result.fechaInicio, result.fechaFin])
+            }else{
+                setItem({
+                    id: '',
+                    colegioId: '',
+                    fechaInicio:'',
+                    fechaFin: '',
+                    fechaPagos:[{
+                        fechaLimite: '',
+                        interes: ''
+                    }],
+                })
+                setFecha()
             }
             setShowLoad(false)
         } catch (error) {
@@ -129,7 +180,18 @@ export default function FormCicloEscolar(){
                     <Label className="mb-0">Fecha inicio a Fecha fin</Label>
                     <SimpleDate 
                         date={fecha}
-                        setDate={value=>setFecha(value)}
+                        setDate={value=>{
+                            if(value.length > 0){
+                                formik.setFieldValue('fechaInicio', value[0])
+                                if(value.length > 1){
+                                    formik.setFieldValue('fechaFin', value[1])
+                                }
+                            }else{
+                                formik.setFieldValue('fechaInicio', '')
+                                formik.setFieldValue('fechaFin', '')
+                            }
+                            setFecha(value)
+                        }}
                         options={{
                             mode: "range"
                         }}
@@ -191,11 +253,10 @@ export default function FormCicloEscolar(){
                                     ))
                                 }
                                 <Button type="button" color="link" className="btn btn-link" onClick={() => arrayHelper.push({
-                                    fechaPagos: {
-                                        fechaLimite: '',
-                                        interes: '',
+                                    fechaLimite: '',
+                                    interes: '',
                                     },
-                                })}>
+                                )}>
                                     <i className="mdi mdi-notebook-plus-outline me-1"></i>
                                     Agregar
                                 </Button>

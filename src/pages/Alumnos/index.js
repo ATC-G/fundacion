@@ -2,8 +2,7 @@ import { useEffect } from "react";
 import { useMemo, useState } from "react";
 import { withRouter } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Col, Container, Row } from "reactstrap";
-import BuscarAlumnos from "../../components/Alumnos/BuscarAlumnos";
+import { Button, Col, Container, InputGroup, Row } from "reactstrap";
 import FormAlumnos from "../../components/Alumnos/FormAlumnos";
 import Breadcrumbs from "../../components/Common/Breadcrumbs";
 import CardBasic from "../../components/Common/CardBasic";
@@ -23,6 +22,7 @@ function Alumnos(){
     const [totalRegistros, setTotalRegistros]   =useState(10)
     const [openAccordion, setOpenAccordion] = useState(false)
     const [reload, setReload] = useState(true);
+    const [searchBy, setSearchBy] = useState('')
     const [query, setQuery] = useState({
       PageNumber: 0,
       PageSize: totalRegistros
@@ -115,52 +115,85 @@ function Alumnos(){
           PageSize: limit
       }))
   }
+
+  const buscarAlumno = () => {
+    let queryCopy = {
+      PageNumber: 0,
+      PageSize: 10
+    }
+    if(searchBy){
+      queryCopy = {
+        ...queryCopy,
+        parameter: searchBy
+      }
+    }
+    setQuery(queryCopy);    
+  }
   
     const cardChildren = (
-        <>
-            <Row>
-                <Col xs="12" md="3">
-                    <BuscarAlumnos />
-                </Col>
-            </Row>
-            <Row>
-                <Col>
-                    <FormAlumnos 
-                      item={item}
-                      setItem={setItem}
-                      setReloadList={setReload}
-                    />
-                </Col>
-            </Row>
-        </>
+          <Row>
+              <Col>
+                  <FormAlumnos 
+                    item={item}
+                    setItem={setItem}
+                    setReloadList={setReload}
+                  />
+              </Col>
+          </Row>
     );
 
     const cardHandleList = (
-        loading ?
-        <Row>
-            <Col xs="12" xl="12">
-                <SimpleLoad />
-            </Col>
-        </Row> :
-        <Row>
-            <Col xl="12">                                    
-                <SimpleTable
-                    columns={columns}
-                    data={items} 
+      <>
+        <div className="d-flex justify-content-end">
+            <div className="mb-1">
+              <InputGroup>
+                <input
+                  type="text"  
+                  id="search"
+                  className="form-control" 
+                  placeholder="Buscar alumno"
+                  value={searchBy}
+                  onChange={e=>setSearchBy(e.target.value)}
                 />
-            </Col> 
-            {
-              items.length > 0 &&
-              <Paginate
-                  page={query.PageNumber}
-                  totalPaginas={totalPaginas}
-                  totalRegistros={totalRegistros}
-                  handlePageClick={handlePageClick}
-                  limit={query.PageSize}
-                  handleChangeLimit={handleChangeLimit}
-              />
-          }           
-        </Row>
+                <div
+                  className="input-group-append"
+                  onClick={buscarAlumno}
+                >
+                  <Button type="button" color="primary">
+                    <i className="bx bx-search-alt-2" />
+                  </Button>
+                </div>
+              </InputGroup>
+            </div>
+        </div>
+        {
+          loading ?
+          <Row>
+              <Col xs="12" xl="12">
+                  <SimpleLoad />
+              </Col>
+          </Row> :
+          <Row>
+              <Col xl="12">                                    
+                  <SimpleTable
+                      columns={columns}
+                      data={items} 
+                  />
+              </Col> 
+              {
+                items.length > 0 &&
+                <Paginate
+                    page={query.PageNumber}
+                    totalPaginas={totalPaginas}
+                    totalRegistros={totalRegistros}
+                    handlePageClick={handlePageClick}
+                    limit={query.PageSize}
+                    handleChangeLimit={handleChangeLimit}
+                />
+            }           
+          </Row>
+        }
+      </>
     )
     
     return (
