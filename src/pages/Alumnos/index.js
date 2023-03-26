@@ -21,7 +21,7 @@ function Alumnos(){
     const [totalPaginas, setTotalPaginas] = useState(0)
     const [totalRegistros, setTotalRegistros]   =useState(10)
     const [openAccordion, setOpenAccordion] = useState(false)
-    const [reload, setReload] = useState(true);
+    const [reload, setReload] = useState(false);
     const [searchBy, setSearchBy] = useState('')
     const [query, setQuery] = useState({
       PageNumber: 0,
