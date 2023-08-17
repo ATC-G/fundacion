@@ -6,7 +6,7 @@ const token = localStorage.getItem("fundacionauth")
   : "";
 //apply base url for axios
 const API_VERSION = "v1";
-const API_URL = `https://escuelas-api.onrender.com/api/${API_VERSION}`;
+const API_URL = `https://fundacion-api.onrender.com/api/${API_VERSION}`;
 
 const axiosApi = axios.create({
   baseURL: API_URL,

@@ -45,6 +45,8 @@ export default function FormAlumnos({
       matricula: item?.matricula ?? "",
       razonSocial: item?.razonSocial ?? "",
       isActive: item?.isActive ?? true,
+      userName: item?.userName ?? "",
+      password: item?.password ?? "",
     },
     validationSchema: Yup.object({
       nombre: Yup.string().required(FIELD_REQUIRED),
@@ -55,6 +57,8 @@ export default function FormAlumnos({
         .typeError(FIELD_NUMERIC)
         .required(FIELD_REQUIRED),
       razonSocial: Yup.string().required(FIELD_REQUIRED),
+      userName: Yup.string().required(FIELD_REQUIRED),
+      password: Yup.string().required(FIELD_REQUIRED),
       //email: Yup.string().email(FIELD_EMAIL).required(FIELD_REQUIRED),
     }),
     onSubmit: async (values) => {
@@ -352,6 +356,42 @@ export default function FormAlumnos({
             onChange={(e) => formik.setFieldValue("isActive", e.target.checked)}
             checked={formik.values.isActive}
           />
+        </Col>
+
+        <Col xs="12" md="3">
+          <Label htmlFor="userName" className="mb-0">
+            Usuario:
+          </Label>
+          <Input
+            id="userName"
+            name="userName"
+            className={`form-control ${
+              formik.errors.userName ? "is-invalid" : ""
+            }`}
+            onChange={formik.handleChange}
+            value={formik.values.userName}
+          />
+          {formik.errors.userName && (
+            <div className="invalid-tooltip">{formik.errors.userName}</div>
+          )}
+        </Col>
+        <Col xs="12" md="3">
+          <Label htmlFor="password" className="mb-0">
+            Contraseña:
+          </Label>
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            className={`form-control ${
+              formik.errors.password ? "is-invalid" : ""
+            }`}
+            onChange={formik.handleChange}
+            value={formik.values.password}
+          />
+          {formik.errors.password && (
+            <div className="invalid-tooltip">{formik.errors.password}</div>
+          )}
         </Col>
       </Row>
       <hr />
