@@ -189,7 +189,7 @@ export default function FormCicloEscolar() {
         setItem({
           id: "",
           nombre: "",
-          colegioId: "",
+          colegioId: value.value,
           fechaInicio: "",
           fechaFin: "",
           fechaPagos: [
@@ -214,6 +214,7 @@ export default function FormCicloEscolar() {
 
   const handleChange = (value) => {
     setColegio(value);
+    console.log(value);
     if (value) {
       formik.setFieldValue("colegioId", value.value);
       fetchCiclosByColegio(value);
@@ -337,7 +338,8 @@ export default function FormCicloEscolar() {
       </>
     );
   };
-
+  console.log(formik.errors);
+  console.log(formik.values);
   return (
     <>
       <Form
